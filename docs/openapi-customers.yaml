@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: HMN Agri Trade Customer API
+  version: 4.2.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /customers:
+    get:
+      summary: Search and paginate active customers
+      parameters:
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { in: query, name: search, schema: { type: string } }
+        - { in: query, name: village, schema: { type: string } }
+        - { in: query, name: district, schema: { type: string } }
+        - { in: query, name: status, schema: { type: string, enum: [active, inactive, blocked] } }
+        - { in: query, name: minBalance, schema: { type: number } }
+        - { in: query, name: maxBalance, schema: { type: number } }
+        - { in: query, name: creditExceeded, schema: { type: boolean } }
+        - { in: query, name: sort, schema: { type: string } }
+      responses: { '200': { description: Paginated customers } }
+    post:
+      summary: Create customer and opening ledger transaction atomically
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerInput' }
+      responses: { '201': { description: Customer created }, '409': { description: Duplicate identity } }
+  /customers/{id}:
+    parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
+    get: { summary: Customer detail, ledger, sales and ageing, responses: { '200': { description: Customer detail } } }
+    put:
+      {
+        summary: Update customer and reconcile opening balance atomically,
+        responses: { '200': { description: Updated } },
+      }
+    delete:
+      {
+        summary: Soft delete customer when no financial activity exists,
+        responses: { '200': { description: Deleted }, '409': { description: Financial activity exists } },
+      }
+  /customers/{id}/restore:
+    post: { summary: Restore a soft-deleted customer, responses: { '200': { description: Restored } } }
+  /customers/{id}/timeline:
+    get: { summary: Unified audit, ledger and sale timeline, responses: { '200': { description: Timeline } } }
+  /customers/{id}/ageing:
+    get: { summary: Outstanding ageing analysis, responses: { '200': { description: Ageing buckets } } }
+  /customers/{id}/statement.pdf:
+    get:
+      {
+        summary: Download customer statement PDF,
+        responses:
+          {
+            '200':
+              { description: PDF document, content: { application/pdf: { schema: { type: string, format: binary } } } },
+          },
+      }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    CustomerInput:
+      type: object
+      required: [name, phone]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 120 }
+        phone: { type: string }
+        cnic: { type: string }
+        email: { type: string, format: email }
+        openingBalance: { type: number, default: 0 }
+        creditLimit: { type: number, minimum: 0 }
+        status: { type: string, enum: [active, inactive, blocked] }
+        tags: { type: array, items: { type: string }, maxItems: 20 }

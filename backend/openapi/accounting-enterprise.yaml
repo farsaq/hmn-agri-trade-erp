@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info:
+  title: HMN Accounting Enterprise API
+  version: 4.7.2
+paths:
+  /api/v1/accounting/journals:
+    get: { summary: List journals }
+    post: { summary: Create manual journal draft }
+  /api/v1/accounting/journals/{id}/submit:
+    post: { summary: Submit journal for approval }
+  /api/v1/accounting/journals/{id}/approve:
+    post: { summary: Approve journal }
+  /api/v1/accounting/journals/{id}/reject:
+    post: { summary: Reject journal }
+  /api/v1/accounting/journals/{id}/post:
+    post: { summary: Post approved journal }
+  /api/v1/accounting/general-ledger:
+    get: { summary: Query general ledger }
+  /api/v1/accounting/accounts/{id}/statement:
+    get: { summary: Account statement with running balance }
+  /api/v1/accounting/fiscal-years:
+    get: { summary: List fiscal years }
+    post: { summary: Create fiscal year and periods }

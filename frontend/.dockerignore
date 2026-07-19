@@ -1,0 +1,11 @@
+node_modules
+dist
+npm-debug.log*
+.env
+.env.*
+!.env.example
+coverage
+.git
+Dockerfile*
+src-backup*
+**/* (2).jsx

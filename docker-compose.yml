@@ -1,0 +1,112 @@
+name: hmn-agri-trade-erp
+
+services:
+  mongo:
+    image: mongo:7.0
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    restart: unless-stopped
+    ports:
+      - '${MONGO_PORT:-27017}:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD-SHELL', "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks: [hmn-network]
+
+  mongo-init:
+    image: mongo:7.0
+    restart: 'no'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    entrypoint: ['bash', '/docker-entrypoint-initdb.d/init-replica.sh']
+    volumes:
+      - ./docker/mongo-init/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
+    networks: [hmn-network]
+
+  redis:
+    image: redis:7.4-alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [hmn-network]
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    restart: unless-stopped
+    env_file:
+      - ./.env.docker
+    environment:
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongo:27017/hmn_agri_trade?replicaSet=rs0
+      REDIS_URL: redis://redis:6379
+      CACHE_ENABLED: ${CACHE_ENABLED:-true}
+      CACHE_DEFAULT_TTL_SECONDS: ${CACHE_DEFAULT_TTL_SECONDS:-60}
+      MONGO_MAX_POOL_SIZE: ${MONGO_MAX_POOL_SIZE:-20}
+      MONGO_MIN_POOL_SIZE: ${MONGO_MIN_POOL_SIZE:-0}
+      MONGO_SLOW_QUERY_MS: ${MONGO_SLOW_QUERY_MS:-250}
+      CLIENT_URL: http://localhost:${FRONTEND_PORT:-5173}
+    ports:
+      - '${BACKEND_PORT:-5000}:5000'
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
+      - backend-logs:/app/logs
+      - backend-uploads:/app/uploads
+      - backend-backups:/app/backups
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:5000/api/v1/health/live']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks: [hmn-network]
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:${BACKEND_PORT:-5000}/api
+    ports:
+      - '${FRONTEND_PORT:-5173}:5173'
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [hmn-network]
+
+volumes:
+  mongo-data:
+  redis-data:
+  backend-node-modules:
+  frontend-node-modules:
+  backend-logs:
+  backend-uploads:
+  backend-backups:
+
+networks:
+  hmn-network:
+    driver: bridge

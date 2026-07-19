@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: HMN Agri Trade Financial Statements API
+  version: 4.7.3
+paths:
+  /api/v1/accounting/reports/dashboard:
+    get: { summary: Accounting dashboard KPIs and ratios }
+  /api/v1/accounting/reports/trial-balance:
+    get: { summary: Trial balance with debit, credit and difference }
+  /api/v1/accounting/reports/profit-loss:
+    get: { summary: Profit and loss statement for a date range }
+  /api/v1/accounting/reports/balance-sheet:
+    get: { summary: Balance sheet as of a date }
+  /api/v1/accounting/reports/cash-flow:
+    get: { summary: Direct cash-flow statement }
+  /api/v1/accounting/reports/ratios:
+    get: { summary: Financial ratios }
+  /api/v1/accounting/reports/comparative:
+    get: { summary: Comparative profit and loss periods }
+  /api/v1/accounting/reports/{type}/export.pdf:
+    get:
+      summary: Export financial report as PDF
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema: { type: string, enum: [trial-balance, profit-loss, balance-sheet, cash-flow] }

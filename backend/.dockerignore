@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+!.env.example
+logs
+uploads
+backups
+coverage
+.git
+Dockerfile*
+README*.md
+src-backup*
+**/* (2).js

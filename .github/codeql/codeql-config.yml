@@ -1,0 +1,14 @@
+name: HMN ERP CodeQL configuration
+
+paths:
+  - backend/src
+  - frontend/src
+
+paths-ignore:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/coverage/**'
+  - '**/tests/fixtures/**'
+
+queries:
+  - uses: security-extended

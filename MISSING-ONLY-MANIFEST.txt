@@ -1,0 +1,19 @@
+HMN ERP v5.7.8 missing-only support patch
+Contains only GitHub/Husky automation and newly added quality/security support files.
+No existing application source, package files, environment secrets, dependencies, builds, logs, backups, or numbered duplicates are included.
+
+.github/dependabot.yml
+.github/codeql/codeql-config.yml
+.github/workflows/ci.yml
+.github/workflows/dependency-review.yml
+.github/workflows/docker-ci.yml
+.github/workflows/release.yml
+.github/workflows/security.yml
+.husky/commit-msg
+.husky/pre-commit
+.production-evidence.example.json
+scripts/checkProductionReadiness.cjs
+scripts/releaseAudit.cjs
+docs/PRODUCTION-READINESS.md
+backend/test/financialDashboardRegression.test.js
+frontend/tests/quality-gates.test.js

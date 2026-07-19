@@ -1,0 +1,9 @@
+{
+  "name": "HMN Agri Trade ERP",
+  "short_name": "HMN ERP",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#14532d",
+  "icons": []
+}

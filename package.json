@@ -1,0 +1,29 @@
+{
+  "name": "hmn-agri-trade-erp",
+  "version": "5.7.8",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "test": "npm test --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "verify": "npm run lint && npm run test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "release:check": "npm run verify && npm run audit:security --prefix backend",
+    "test:all": "npm run test:ci --prefix backend && npm run test:ci --prefix frontend",
+    "production:check": "npm run verify && npm run smoke:production --prefix backend",
+    "production:validate": "node scripts/checkProductionReadiness.cjs",
+    "release:audit": "node scripts/releaseAudit.cjs",
+    "quality:gate": "npm run lint && npm run test:all && npm run build && npm run release:audit && npm run security:audit",
+    "security:audit": "npm audit --audit-level=moderate --prefix backend && npm audit --audit-level=moderate --prefix frontend"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.9.5"
+  }
+}

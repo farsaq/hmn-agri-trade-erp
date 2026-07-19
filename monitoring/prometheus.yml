@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: hmn-erp-api
+    metrics_path: /api/v1/health/prometheus
+    static_configs:
+      - targets: ['backend:5000']
+    # Add x-metrics-token through a trusted reverse proxy or use authorization in your deployment secret store.

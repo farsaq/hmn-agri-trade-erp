@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: HMN Accounting API
+  version: 4.7.0
+paths:
+  /api/v1/accounting/accounts:
+    get: { summary: List chart of accounts, responses: { '200': { description: OK } } }
+    post: { summary: Create account, responses: { '201': { description: Created } } }
+  /api/v1/accounting/accounts/tree:
+    get: { summary: Account hierarchy, responses: { '200': { description: OK } } }
+  /api/v1/accounting/journals:
+    get: { summary: List journals, responses: { '200': { description: OK } } }
+    post: { summary: Post balanced manual journal, responses: { '201': { description: Posted } } }
+  /api/v1/accounting/journals/{id}/reverse:
+    post:
+      {
+        summary: Reverse posted journal,
+        parameters: [{ name: id, in: path, required: true, schema: { type: string } }],
+        responses: { '200': { description: Reversed } },
+      }
+  /api/v1/accounting/general-ledger:
+    get: { summary: General ledger, responses: { '200': { description: OK } } }

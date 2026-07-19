@@ -1,0 +1,15 @@
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+**/dist
+**/coverage
+**/logs
+**/uploads
+**/backups
+**/src-backup*
+**/* (2).js
+**/* (2).jsx
+.git
+.github
+*.zip

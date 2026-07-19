@@ -1,0 +1,12 @@
+{
+  "release": "5.7.8",
+  "environment": "production",
+  "completedAt": "",
+  "backupRestore": false,
+  "migrations": false,
+  "monitoringAlerts": false,
+  "securitySmoke": false,
+  "rollbackRehearsal": false,
+  "approvedBy": "",
+  "notes": "Copy to .production-evidence.json only after performing every check."
+}

@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the v prefix
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build release artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install and verify backend
+        run: |
+          npm ci --prefix backend
+          npm run verify --prefix backend
+          npm audit --prefix backend --audit-level=high
+
+      - name: Install and build frontend
+        run: |
+          npm ci --prefix frontend
+          npm run lint --prefix frontend
+          npm run build --prefix frontend
+
+      - name: Prepare clean release directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_VERSION#v}"
+          PACKAGE="HMN-Agri-Trade-ERP-v${VERSION}"
+          mkdir -p "release/${PACKAGE}"
+          rsync -a ./ "release/${PACKAGE}/" \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'release/' \
+            --exclude '**/node_modules/' \
+            --exclude '**/.env' \
+            --exclude '.env.production' \
+            --exclude '**/logs/' \
+            --exclude '**/coverage/' \
+            --exclude '**/*.log' \
+            --exclude '**/npm-audit-*.json'
+          printf '%s\n' "$VERSION" > "release/${PACKAGE}/VERSION.txt"
+          cd release
+          zip -qr "${PACKAGE}.zip" "${PACKAGE}"
+          sha256sum "${PACKAGE}.zip" > "${PACKAGE}.zip.sha256"
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hmn-erp-release-${{ env.RELEASE_VERSION }}
+          path: |
+            release/*.zip
+            release/*.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            release/*.zip \
+            release/*.sha256 \
+            --verify-tag \
+            --generate-notes \
+            --title "HMN Agri Trade ERP ${GITHUB_REF_NAME}"

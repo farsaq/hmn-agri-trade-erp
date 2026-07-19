@@ -1,0 +1,18 @@
+{
+  "featureFlags": {
+    "ai": true,
+    "integrations": true,
+    "cloudinary": true,
+    "automaticBackups": true,
+    "realtimeNotifications": true,
+    "legacyApi": true
+  },
+  "logging": {
+    "level": "info",
+    "console": true
+  },
+  "maintenance": {
+    "enabled": false,
+    "message": "Service is temporarily unavailable"
+  }
+}

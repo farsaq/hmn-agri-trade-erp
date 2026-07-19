@@ -1,0 +1,62 @@
+openapi: 3.1.0
+info:
+  title: HMN Agri Trade Supplier Enterprise API
+  version: 4.3.0
+paths:
+  /api/v1/suppliers:
+    get:
+      summary: List suppliers with search, filters, pagination and whitelisted sorting
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Supplier page } }
+    post:
+      summary: Create supplier and opening-balance ledger transaction atomically
+      security: [{ bearerAuth: [] }]
+      responses: { '201': { description: Supplier created }, '409': { description: Duplicate identity } }
+  /api/v1/suppliers-deleted:
+    get:
+      summary: List soft-deleted suppliers
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Deleted supplier page } }
+  /api/v1/suppliers/{id}:
+    get:
+      summary: Supplier detail with ledger, purchases and ageing
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Supplier detail } }
+    put:
+      summary: Update supplier and reconcile opening balance atomically
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Supplier updated } }
+    delete:
+      summary: Soft-delete supplier when no protected financial activity exists
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Supplier deleted }, '409': { description: Supplier has transactions } }
+  /api/v1/suppliers/{id}/restore:
+    post:
+      summary: Restore a soft-deleted supplier
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Supplier restored } }
+  /api/v1/suppliers/{id}/ageing:
+    get:
+      summary: Return payable ageing buckets
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Ageing report } }
+  /api/v1/suppliers/{id}/timeline:
+    get:
+      summary: Return unified purchase, ledger and audit timeline
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Timeline } }
+  /api/v1/suppliers/{id}/statement.pdf:
+    get:
+      summary: Download authenticated PDF statement
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: PDF statement, content: { application/pdf: {} } } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

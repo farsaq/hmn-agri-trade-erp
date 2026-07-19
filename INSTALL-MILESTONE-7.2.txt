@@ -1,0 +1,14 @@
+1. Keep a backup of your current project.
+2. Extract/overwrite this package into the current project folder.
+3. Copy your existing backend/.env if required.
+4. Backend commands:
+   npm install
+   npm run migrate:accounting
+   npm run migrate:accounting-enterprise
+   npm run verify
+   npm run dev
+5. Frontend commands:
+   npm install
+   npm run lint
+   npm run dev
+6. Open /admin/accounting after login.

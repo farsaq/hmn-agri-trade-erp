@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info: { title: HMN Product Enterprise API, version: 4.4.0 }
+paths:
+  /api/v1/products:
+    get: { summary: Search and paginate products }
+    post: { summary: Create product transactionally }
+  /api/v1/products-deleted:
+    get: { summary: List deleted products }
+  /api/v1/products/{id}:
+    get: { summary: Product detail, stock and history }
+    put: { summary: Update product and price history }
+    delete: { summary: Soft delete product }
+  /api/v1/products/{id}/restore:
+    post: { summary: Restore product }
+  /api/v1/products/{id}/adjust-stock:
+    post: { summary: Transactional warehouse stock adjustment }
+  /api/v1/products/{id}/reconcile-stock:
+    post: { summary: Recalculate product summary stock from warehouses }
+  /api/v1/products/{id}/timeline:
+    get: { summary: Product transaction timeline }
+  /api/v1/products/{id}/report.pdf:
+    get: { summary: Download product PDF report }

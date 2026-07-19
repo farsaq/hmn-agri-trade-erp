@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: HMN ERP Transactions Enterprise API
+  version: 4.6.0
+paths:
+  /api/v1/sales:
+    post: { summary: Create idempotent transactional sale }
+  /api/v1/sales/{id}/confirm:
+    post: { summary: Confirm draft and commit stock/ledger }
+  /api/v1/sales/{id}/cancel:
+    post: { summary: Cancel sale with stock and ledger reversal }
+  /api/v1/sale-returns:
+    post: { summary: Create validated partial sale return and credit note }
+  /api/v1/purchases:
+    post: { summary: Receive transactional purchase with stock and supplier ledger }
+  /api/v1/purchases/{id}/cancel:
+    post: { summary: Cancel purchase with inventory and payable reversal }
+  /api/v1/purchase-returns:
+    post: { summary: Create partial purchase return and supplier debit note }
+  /api/v1/purchase-orders:
+    post: { summary: Create purchase order }
+  /api/v1/payments:
+    post: { summary: Create customer receipt or supplier payment with allocations }
+  /api/v1/payments/{id}/reverse:
+    post: { summary: Reverse payment and allocations }
+  /api/v1/expenses-enterprise:
+    post: { summary: Create validated enterprise expense }

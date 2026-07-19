@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: HMN Financial Transactions API
+  version: 4.6.1
+paths:
+  /api/v1/sales/{id}/confirm:
+    post: { summary: Confirm a draft sale and consume reserved stock }
+  /api/v1/sales/{id}/fulfil:
+    post: { summary: Mark a confirmed sale fulfilled }
+  /api/v1/sale-returns/{id}/approve:
+    post: { summary: Approve and post a sales return }
+  /api/v1/purchases/{id}/confirm:
+    post: { summary: Confirm a draft purchase }
+  /api/v1/purchases/{id}/receive:
+    post: { summary: Receive a confirmed purchase through a GRN }
+  /api/v1/purchase-returns/{id}/approve:
+    post: { summary: Approve and post a purchase return }
+  /api/v1/payments:
+    get: { summary: List unified payments }
+    post: { summary: Create a customer receipt or supplier payment }
+  /api/v1/payments/{id}/reverse:
+    post: { summary: Reverse a payment and all accounting postings }
+  /api/v1/expenses-enterprise/{id}/pay:
+    post: { summary: Pay an approved expense from a cash or bank account }
+  /api/v1/expenses-enterprise/{id}/reverse:
+    post: { summary: Reverse a paid expense }

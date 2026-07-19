@@ -1,0 +1,18 @@
+groups:
+  - name: hmn-erp
+    rules:
+      - alert: HMNErpApiDown
+        expr: up{job="hmn-erp-api"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: 'HMN ERP API is unavailable' }
+      - alert: HMNErpHighErrorRate
+        expr: increase(hmn_http_requests_by_status_class_total{status_class="5xx"}[5m]) > 5
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: 'HMN ERP API is returning elevated 5xx errors' }
+      - alert: HMNErpDatabaseDisconnected
+        expr: hmn_database_connected == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations: { summary: 'HMN ERP database is disconnected' }

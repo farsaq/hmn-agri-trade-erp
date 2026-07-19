@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: HMN Warehouse and Units API
+  version: 4.5.1
+paths:
+  /api/v1/warehouses:
+    get: { summary: List warehouses }
+    post: { summary: Create warehouse }
+  /api/v1/warehouses/{id}:
+    get: { summary: Warehouse detail }
+    put: { summary: Update warehouse }
+    delete: { summary: Soft delete warehouse }
+  /api/v1/warehouses/{id}/restore:
+    post: { summary: Restore warehouse }
+  /api/v1/warehouses/{id}/low-stock:
+    get: { summary: Low stock by warehouse }
+  /api/v1/warehouses/{id}/expiry:
+    get: { summary: Expiring stock by warehouse }
+  /api/v1/units:
+    get: { summary: List units }
+    post: { summary: Create unit }
+  /api/v1/units/convert:
+    post: { summary: Convert quantity between compatible units }
+  /api/v1/units/seed-defaults:
+    post: { summary: Seed agriculture and standard units }
+
+  /units/{id}:
+    get:
+      summary: Get a unit with dependent units and recent conversions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Unit detail }
+  /warehouses/{id}/expiry:
+    get:
+      summary: Warehouse expiry report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: days
+          schema: { type: integer, minimum: 0, maximum: 3650, default: 30 }
+        - in: query
+          name: status
+          schema: { type: string, enum: [expiring, expired, all], default: expiring }
+      responses:
+        '200': { description: Expiry report }

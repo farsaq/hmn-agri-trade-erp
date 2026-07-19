@@ -1,0 +1,27 @@
+HMN AGRI TRADE ERP v5.7.8 PATCH INSTALLATION
+
+Prerequisite:
+- Latest working ERP source with patches v5.7.1 through v5.7.7 already applied.
+
+Steps:
+1. Back up the current ERP directory and database.
+2. Extract this patch ZIP.
+3. Copy the `backend` and `frontend` folders into the ERP project root.
+4. Allow the four included source files to overwrite matching files.
+5. Backend:
+   cd backend
+   npm install
+   npm run dev
+6. Frontend:
+   cd frontend
+   npm install
+   npm run build
+   npm run dev
+7. Open Accounting and select DASHBOARD.
+8. Confirm the dashboard API:
+   GET /api/v1/accounting/reports/dashboard?dateFrom=YYYY-MM-DD&dateTo=YYYY-MM-DD
+
+Rollback:
+Restore these modified files from your backup and remove:
+- backend/src/services/financialDashboardService.js
+- frontend/src/admin/FinancialDashboard.jsx

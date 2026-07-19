@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { protect, requirePermission } from '../middleware/auth.js';
+import * as ai from '../controllers/ai.js';
+import { requireFeature } from '../middleware/featureFlag.js';
+const r = Router();
+r.use(requireFeature('ai'));
+r.use(protect);
+r.get('/ai-pro/dashboard', requirePermission('ai.view'), ai.dashboard);
+r.get('/ai-pro/forecasts', requirePermission('ai.view'), ai.forecasts);
+r.post('/ai-pro/query', requirePermission('ai.query'), ai.query);
+r.get('/ai-pro/search', requirePermission('ai.view'), ai.search);
+r.get('/ai-pro/report-summary', requirePermission('ai.view'), ai.reportSummary);
+r.get('/ai-pro/history', requirePermission('ai.view'), ai.history);
+export default r;

@@ -1,0 +1,65 @@
+import { Router } from 'express';
+import { protect, requirePermission } from '../middleware/auth.js';
+import * as a from '../controllers/accounting.js';
+import * as f from '../controllers/financialStatements.js';
+const r = Router();
+r.use(protect);
+r.get('/accounting/accounts', requirePermission('accounting.view'), a.listAccounts);
+r.get('/accounting/accounts/tree', requirePermission('accounting.view'), a.accountTree);
+r.post('/accounting/accounts', requirePermission('accounting.create'), a.createAccount);
+r.put('/accounting/accounts/:id', requirePermission('accounting.update'), a.updateAccount);
+r.delete('/accounting/accounts/:id', requirePermission('accounting.delete'), a.removeAccount);
+r.post('/accounting/accounts/:id/restore', requirePermission('accounting.update'), a.restoreAccount);
+r.post('/accounting/accounts/:id/status', requirePermission('accounting.update'), a.setAccountStatus);
+r.post(
+  '/accounting/accounts/:id/opening-balance-adjustment',
+  requirePermission('accounting.update'),
+  a.adjustOpeningBalance,
+);
+r.get('/accounting/accounts/:id/statement', requirePermission('accounting.view'), a.accountStatement);
+r.get('/accounting/accounts/:id/statement.pdf', requirePermission('accounting.export'), a.statementPdf);
+r.get('/accounting/accounts/:id/statement.xlsx', requirePermission('accounting.export'), a.statementExcel);
+r.get('/accounting/journals', requirePermission('accounting.journal.view'), a.listJournals);
+r.post('/accounting/journals', requirePermission('accounting.journal.create'), a.createJournal);
+r.get('/accounting/journals/:id', requirePermission('accounting.journal.view'), a.journalDetail);
+r.put('/accounting/journals/:id', requirePermission('accounting.journal.create'), a.updateJournal);
+r.delete('/accounting/journals/:id', requirePermission('accounting.journal.create'), a.deleteJournal);
+r.post('/accounting/journals/:id/submit', requirePermission('accounting.journal.create'), a.submitJournal);
+r.post('/accounting/journals/:id/approve', requirePermission('accounting.journal.approve'), a.approveJournal);
+r.post('/accounting/journals/:id/reject', requirePermission('accounting.journal.approve'), a.rejectJournal);
+r.post('/accounting/journals/:id/post', requirePermission('accounting.journal.post'), a.postApprovedJournal);
+r.post('/accounting/journals/:id/reverse', requirePermission('accounting.journal.reverse'), a.reverse);
+r.get('/accounting/journals/:id/timeline', requirePermission('accounting.journal.view'), a.journalTimeline);
+r.get('/accounting/journals/:id/voucher.pdf', requirePermission('accounting.export'), a.journalPdf);
+r.get('/accounting/journals/:id/export.xlsx', requirePermission('accounting.export'), a.journalExcel);
+r.get('/accounting/journals/:id/export.csv', requirePermission('accounting.export'), a.journalCsv);
+r.get('/accounting/general-ledger', requirePermission('accounting.view'), a.generalLedger);
+r.get('/accounting/general-ledger/:id/drilldown', requirePermission('accounting.view'), a.ledgerDrilldown);
+r.get('/accounting/general-ledger/export.pdf', requirePermission('accounting.export'), a.glPdf);
+r.get('/accounting/general-ledger/export.xlsx', requirePermission('accounting.export'), a.glExcel);
+r.get('/accounting/general-ledger/export.csv', requirePermission('accounting.export'), a.glCsv);
+r.get('/accounting/source/:sourceType/:sourceId', requirePermission('accounting.view'), a.sourceDrilldown);
+r.post('/accounting/reconcile-balances', requirePermission('accounting.update'), a.reconcileBalances);
+r.get('/accounting/fiscal-years', requirePermission('accounting.view'), a.listFiscalYears);
+r.post('/accounting/fiscal-years', requirePermission('accounting.update'), a.createFiscalYear);
+r.get('/accounting/periods', requirePermission('accounting.view'), a.listPeriods);
+r.post('/accounting/periods', requirePermission('accounting.update'), a.createPeriod);
+r.post('/accounting/periods/:id/status', requirePermission('accounting.update'), a.changePeriodStatus);
+r.get('/accounting/dimensions/:kind', requirePermission('accounting.view'), a.listDimensions);
+r.post('/accounting/dimensions/:kind', requirePermission('accounting.update'), a.createDimension);
+r.get('/accounting/templates', requirePermission('accounting.journal.view'), a.listTemplates);
+r.post('/accounting/templates', requirePermission('accounting.journal.create'), a.createTemplate);
+r.get('/accounting/recurring', requirePermission('accounting.journal.view'), a.listRecurring);
+r.post('/accounting/recurring', requirePermission('accounting.journal.create'), a.createRecurring);
+
+r.get('/accounting/reports/dashboard', requirePermission('accounting.view'), f.dashboard);
+r.get('/accounting/reports/trial-balance', requirePermission('accounting.view'), f.trialBalance);
+r.get('/accounting/reports/profit-loss', requirePermission('accounting.view'), f.profitLoss);
+r.get('/accounting/reports/balance-sheet', requirePermission('accounting.view'), f.balanceSheet);
+r.get('/accounting/reports/cash-flow', requirePermission('accounting.view'), f.cashFlow);
+r.get('/accounting/reports/ratios', requirePermission('accounting.view'), f.financialRatios);
+r.get('/accounting/reports/comparative', requirePermission('accounting.view'), f.comparative);
+r.get('/accounting/reports/:type/export.pdf', requirePermission('accounting.export'), f.exportPdf);
+r.get('/accounting/reports/:type/export.xlsx', requirePermission('accounting.export'), f.exportExcel);
+r.get('/accounting/reports/:type/export.csv', requirePermission('accounting.export'), f.exportCsv);
+export default r;
