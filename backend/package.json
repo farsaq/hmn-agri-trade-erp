@@ -60,7 +60,7 @@
     "readdir-glob": "^3.0.0",
     "redis": "^5.12.1",
     "socket.io": "^4.8.1",
-    "stripe": "^17.5.0",
+    "stripe": "^22.3.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
