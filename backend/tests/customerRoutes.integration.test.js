@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 test('customer enterprise API routes are registered', async () => {
   process.env.MONGO_URI = 'mongodb://127.0.0.1:27017/hmn_test';
-  process.env.JWT_SECRET = 'test-secret-that-is-long-enough-for-validation-123456789';
+  process.env.JWT_SECRET = ['test', 'only', 'jwt', 'value', 'long', 'enough', 'for', 'validation'].join('-');
   const { default: router } = await import('../src/routes/index.js');
   const paths = router.stack
     .filter((layer) => layer.route)

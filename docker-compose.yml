@@ -44,6 +44,7 @@ services:
     networks: [hmn-network]
 
   backend:
+    image: hmn-agri-trade-erp-backend:latest
     build:
       context: ./backend
       target: development
@@ -82,6 +83,7 @@ services:
     networks: [hmn-network]
 
   frontend:
+    image: hmn-agri-trade-erp-frontend:latest
     build:
       context: ./frontend
       target: development
