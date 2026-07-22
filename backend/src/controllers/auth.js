@@ -7,6 +7,9 @@ import { User, Session, AuditLog } from '../models/index.js';
 import { sendMail, verificationTemplate, otpTemplate, resetTemplate } from '../services/mail.js';
 import { env } from '../config/env.js';
 
+authenticator.options = { window: 1 };
+
+const normalizeAuthenticatorCode = (value) => String(value || '').replace(/\D/g, '').slice(0, 6);
 const sha = (v) => crypto.createHash('sha256').update(String(v)).digest('hex');
 const accessToken = (user) =>
   jwt.sign({ id: user._id, role: user.role }, env.jwtSecret, {
@@ -96,7 +99,7 @@ export async function login(req, res) {
   }
   if (user.twoFactorEnabled) {
     let valid = false;
-    if (twoFactorCode) valid = authenticator.check(String(twoFactorCode), user.twoFactorSecret);
+    if (twoFactorCode) valid = authenticator.check(normalizeAuthenticatorCode(twoFactorCode), user.twoFactorSecret);
     if (!valid && recoveryCode) {
       const h = sha(String(recoveryCode).toUpperCase());
       const i = (user.recoveryCodeHashes || []).indexOf(h);
@@ -244,7 +247,10 @@ export async function setupTwoFactor(req, res) {
   res.json({ secret, qrCode, otpauth });
 }
 export async function enableTwoFactor(req, res) {
-  if (!req.user.twoFactorSecret || !authenticator.check(String(req.body.code || ''), req.user.twoFactorSecret))
+  if (
+    !req.user.twoFactorSecret ||
+    !authenticator.check(normalizeAuthenticatorCode(req.body.code), req.user.twoFactorSecret)
+  )
     return res.status(400).json({ message: 'Invalid authenticator code' });
   const codes = Array.from({ length: 8 }, () => crypto.randomBytes(5).toString('hex').toUpperCase());
   req.user.twoFactorEnabled = true;
@@ -254,7 +260,7 @@ export async function enableTwoFactor(req, res) {
   res.json({ message: '2FA enabled', recoveryCodes: codes });
 }
 export async function disableTwoFactor(req, res) {
-  if (!authenticator.check(String(req.body.code || ''), req.user.twoFactorSecret || ''))
+  if (!authenticator.check(normalizeAuthenticatorCode(req.body.code), req.user.twoFactorSecret || ''))
     return res.status(400).json({ message: 'Invalid authenticator code' });
   req.user.twoFactorEnabled = false;
   req.user.twoFactorSecret = undefined;
