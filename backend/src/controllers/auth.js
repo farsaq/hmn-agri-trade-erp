@@ -239,35 +239,39 @@ export async function verifyOtp(req, res) {
   res.json(await issueSession(req, res, user, Boolean(req.body.rememberMe)));
 }
 export async function setupTwoFactor(req, res) {
+  const user = await User.findById(req.user._id);
+  if (!user) return res.status(404).json({ message: 'User not found' });
   const secret = authenticator.generateSecret();
-  req.user.twoFactorSecret = secret;
-  await req.user.save();
-  const otpauth = authenticator.keyuri(req.user.email, 'HMN Agri Trade', secret);
+  user.twoFactorSecret = secret;
+  await user.save();
+  const otpauth = authenticator.keyuri(user.email, 'HMN Agri Trade', secret);
   const qrCode = await QRCode.toDataURL(otpauth);
   res.json({ secret, qrCode, otpauth });
 }
 export async function enableTwoFactor(req, res) {
+  const user = await User.findById(req.user._id);
   if (
-    !req.user.twoFactorSecret ||
-    !authenticator.check(normalizeAuthenticatorCode(req.body.code), req.user.twoFactorSecret)
+    !user?.twoFactorSecret ||
+    !authenticator.check(normalizeAuthenticatorCode(req.body.code), user.twoFactorSecret)
   )
     return res.status(400).json({ message: 'Invalid authenticator code' });
   const codes = Array.from({ length: 8 }, () => crypto.randomBytes(5).toString('hex').toUpperCase());
-  req.user.twoFactorEnabled = true;
-  req.user.recoveryCodeHashes = codes.map(sha);
-  await req.user.save();
-  await audit(req, req.user, '2FA_ENABLED', 'Two-factor authentication enabled');
+  user.twoFactorEnabled = true;
+  user.recoveryCodeHashes = codes.map(sha);
+  await user.save();
+  await audit(req, user, '2FA_ENABLED', 'Two-factor authentication enabled');
   res.json({ message: '2FA enabled', recoveryCodes: codes });
 }
 export async function disableTwoFactor(req, res) {
-  if (!authenticator.check(normalizeAuthenticatorCode(req.body.code), req.user.twoFactorSecret || ''))
+  const user = await User.findById(req.user._id);
+  if (!user || !authenticator.check(normalizeAuthenticatorCode(req.body.code), user.twoFactorSecret || ''))
     return res.status(400).json({ message: 'Invalid authenticator code' });
-  req.user.twoFactorEnabled = false;
-  req.user.twoFactorSecret = undefined;
-  req.user.recoveryCodeHashes = [];
-  req.user.trustedDevices = [];
-  await req.user.save();
-  await audit(req, req.user, '2FA_DISABLED', 'Two-factor authentication disabled');
+  user.twoFactorEnabled = false;
+  user.twoFactorSecret = undefined;
+  user.recoveryCodeHashes = [];
+  user.trustedDevices = [];
+  await user.save();
+  await audit(req, user, '2FA_DISABLED', 'Two-factor authentication disabled');
   res.json({ message: '2FA disabled' });
 }
 export async function sessions(req, res) {

@@ -62,3 +62,17 @@ test('seeded company contact is environment driven', async () => {
   assert.match(source, /process\.env\.COMPANY_PHONE/);
   assert.doesNotMatch(source, /\+92 300 0000000/);
 });
+
+
+test('2FA enable reloads the user secret excluded by authentication middleware', async () => {
+  const source = await import('node:fs/promises').then((fs) =>
+    fs.readFile(new URL('../src/controllers/auth.js', import.meta.url), 'utf8'),
+  );
+  const enableBlock = source.slice(
+    source.indexOf('export async function enableTwoFactor'),
+    source.indexOf('export async function disableTwoFactor'),
+  );
+  assert.ok(enableBlock.includes('const user = await User.findById(req.user._id);'));
+  assert.match(enableBlock, /user.twoFactorSecret/);
+  assert.doesNotMatch(enableBlock, /req.user.twoFactorSecret/);
+});
