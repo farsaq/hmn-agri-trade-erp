@@ -597,7 +597,7 @@ export function ProductsPro() {
     [meta, setMeta] = useState({ categories: [], brands: [], warehouses: [], suppliers: [] }),
     [selected, setSelected] = useState(null),
     [profile, setProfile] = useState(null),
-    [form, setForm] = useState({ name: '', sku: '', category: 'Other', unit: 'kg' }),
+    [form, setForm] = useState({ name: '', sku: '', category: 'Other', baseUnit: 'kg' }),
     [error, setError] = useState('');
   const load = () =>
     Promise.all([api.get('/products'), api.get('/catalog/meta')]).then(([a, b]) => {
@@ -629,7 +629,7 @@ export function ProductsPro() {
             'name',
             'sku',
             'brand',
-            'unit',
+            'baseUnit',
             'purchasePrice',
             'salePrice',
             'wholesalePrice',
