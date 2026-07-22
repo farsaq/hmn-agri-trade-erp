@@ -695,8 +695,10 @@ export function ProductsPro() {
     </Shell>
   );
 }
-function ProductProfile({ data, refresh }) {
-  const [batch, setBatch] = useState({ batchNo: '', lotNo: '', quantity: 0, purchasePrice: 0 });
+function ProductProfile({ data, meta, refresh }) {
+  const [batch, setBatch] = useState({ batchNo: '', lotNo: '', quantity: 0, purchasePrice: 0 }),
+    [adjustment, setAdjustment] = useState({ warehouse: '', quantity: 0, unitCost: 0, reason: '', reference: '' }),
+    [stockMessage, setStockMessage] = useState('');
   async function codes() {
     await api.post(`/products/${data.product._id}/codes`);
     refresh();
@@ -712,8 +714,20 @@ function ProductProfile({ data, refresh }) {
     await api.post(`/products/${data.product._id}/batches`, batch);
     refresh();
   }
+  async function adjustStock(e) {
+    e.preventDefault();
+    setStockMessage('');
+    try {
+      await api.post(`/products/${data.product._id}/adjust-stock`, adjustment);
+      setStockMessage('Stock adjustment saved.');
+      setAdjustment({ warehouse: '', quantity: 0, unitCost: 0, reason: '', reference: '' });
+      refresh();
+    } catch (e) {
+      setStockMessage(errMsg(e));
+    }
+  }
   return (
-    <div className="mt-7 grid gap-6 xl:grid-cols-3">
+    <div className="mt-7 grid gap-6 xl:grid-cols-2">
       <div className="card">
         <h2 className="text-2xl font-black">{data.product.name}</h2>
         <div className="mt-4 grid grid-cols-3 gap-2">
@@ -763,6 +777,55 @@ function ProductProfile({ data, refresh }) {
             <div className="text-xs">Expiry: {b.expiryDate ? new Date(b.expiryDate).toLocaleDateString() : '—'}</div>
           </div>
         ))}
+      </form>
+      <form onSubmit={adjustStock} className="card space-y-3">
+        <h3 className="text-xl font-black">Warehouse stock adjustment</h3>
+        {stockMessage && <Notice text={stockMessage} />}
+        <select
+          required
+          className="input"
+          value={adjustment.warehouse}
+          onChange={(e) => setAdjustment({ ...adjustment, warehouse: e.target.value })}
+        >
+          <option value="">Select warehouse</option>
+          {meta.warehouses.map((w) => (
+            <option key={w._id} value={w._id}>
+              {w.name}
+            </option>
+          ))}
+        </select>
+        <input
+          required
+          className="input"
+          type="number"
+          step="any"
+          placeholder="Quantity (+ add, - remove)"
+          value={adjustment.quantity || ''}
+          onChange={(e) => setAdjustment({ ...adjustment, quantity: Number(e.target.value) })}
+        />
+        <input
+          className="input"
+          type="number"
+          min="0"
+          step="any"
+          placeholder="Unit cost"
+          value={adjustment.unitCost || ''}
+          onChange={(e) => setAdjustment({ ...adjustment, unitCost: Number(e.target.value) })}
+        />
+        <input
+          required
+          className="input"
+          placeholder="Reason"
+          value={adjustment.reason}
+          onChange={(e) => setAdjustment({ ...adjustment, reason: e.target.value })}
+        />
+        <input
+          className="input"
+          placeholder="Reference"
+          value={adjustment.reference}
+          onChange={(e) => setAdjustment({ ...adjustment, reference: e.target.value })}
+        />
+        <button className="btn-primary w-full">Save stock adjustment</button>
       </form>
       <div className="card">
         <h3 className="text-xl font-black">Warehouse stock</h3>
