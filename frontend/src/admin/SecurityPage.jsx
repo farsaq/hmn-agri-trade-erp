@@ -7,7 +7,9 @@ export default function SecurityPage() {
     [code, setCode] = useState(''),
     [recovery, setRecovery] = useState([]),
     [sessions, setSessions] = useState([]),
-    [msg, setMsg] = useState('');
+    [msg, setMsg] = useState(''),
+    [error, setError] = useState(''),
+    [enabling, setEnabling] = useState(false);
   const load = () => api.get('/auth/sessions').then((r) => setSessions(r.data));
   useEffect(() => {
     load();
@@ -18,9 +20,23 @@ export default function SecurityPage() {
     setSecret(r.data.secret);
   };
   const enable = async () => {
-    const r = await api.post('/auth/2fa/enable', { code });
-    setRecovery(r.data.recoveryCodes);
-    setMsg(r.data.message);
+    const normalizedCode = code.replace(/\D/g, '').slice(0, 6);
+    setError('');
+    setMsg('');
+    if (normalizedCode.length !== 6) {
+      setError('Enter the current 6-digit authenticator code.');
+      return;
+    }
+    setEnabling(true);
+    try {
+      const r = await api.post('/auth/2fa/enable', { code: normalizedCode });
+      setRecovery(r.data.recoveryCodes || []);
+      setMsg(r.data.message || '2FA enabled');
+    } catch (e) {
+      setError(e.response?.data?.message || 'Unable to enable 2FA. Check your device time and try a fresh code.');
+    } finally {
+      setEnabling(false);
+    }
   };
   return (
     <Shell title="Security & Sessions">
@@ -40,14 +56,22 @@ export default function SecurityPage() {
                 className="input mt-4"
                 placeholder="6-digit code"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
               />
-              <button onClick={enable} className="mt-3 rounded-xl bg-green-700 px-5 py-3 font-black text-white">
-                Verify and enable
+              <button
+                onClick={enable}
+                disabled={enabling || code.length !== 6}
+                className="mt-3 rounded-xl bg-green-700 px-5 py-3 font-black text-white disabled:opacity-50"
+              >
+                {enabling ? 'Verifying...' : 'Verify and enable'}
               </button>
             </>
           )}
           {msg && <p className="mt-4 font-bold text-green-700">{msg}</p>}
+          {error && <p className="mt-4 font-bold text-red-700">{error}</p>}
           {recovery.length > 0 && (
             <div className="mt-5 rounded-xl bg-amber-50 p-4">
               <b>Save these recovery codes once:</b>
