@@ -55,7 +55,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^9.0.3",
     "otplib": "^12.0.1",
-    "pdfkit": "^0.17.2",
+    "pdfkit": "^0.19.1",
     "qrcode": "^1.5.4",
     "readdir-glob": "^3.0.0",
     "redis": "^5.12.1",
