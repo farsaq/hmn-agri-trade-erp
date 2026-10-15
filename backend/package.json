@@ -35,7 +35,7 @@
     "load:smoke": "node src/scripts/loadSmoke.js"
   },
   "dependencies": {
-    "archiver": "^7.0.1",
+    "archiver": "^8.0.0",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "bwip-js": "^4.5.1",
